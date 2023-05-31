@@ -76,12 +76,15 @@ void undoStack(Stack<Stack<T>>& s) {
 template <class T>
 void redoStack(Stack<Stack<T>>& s) {
     if (isEmpty(s)) cout << "Can't redo\n";
-    if (s.head != NULL && s.head->next != NULL) {
-        Node<Stack<T>> *cur = s.head;
+    else if (s.head != NULL && s.head->next != NULL) {
+        Node<Stack<T>>* cur = s.head;
         pop(cur->data);
         s.head = cur->next;
     }
 }
+
+
+
 
 void menuStack(int input) {
     bool SAVE = false;
@@ -95,9 +98,12 @@ void menuStack(int input) {
 
     cout << "Number current selection\n";
     for (int i = 1; i <= 9; i++) {
-        if (i == 5) cout << "z: " << nameSelection[i - 1] << endl;
-        else if (i == 6) cout << "r: " << nameSelection[i - 1] << endl;
-        else cout << i << ": " << nameSelection[i - 1] << endl;
+        if (i == 5)
+            cout << "z: " << nameSelection[i - 1] << endl;
+        else if (i == 6)
+            cout << "r: " << nameSelection[i - 1] << endl;
+        else
+            cout << i << ": " << nameSelection[i - 1] << endl;
     }
     Stack<int> copy;
     while (input != 0) {
@@ -126,22 +132,25 @@ void menuStack(int input) {
                 break;
             }
             case 4: {
-                copyStack(undo.head->data, copy);
+                copyStack(s, copy);
                 bubbleSort(copy);
                 push(undo, copy);
-                printList(undo.head->data);
+                printList(copy);
+                copyStack(copy, s);
                 break;
             }
             case 7: {
                 clearList(s);
                 clearConsole();
-                menuStack(-1);
+                createListFromFile(s);
+                push(undo, s);
+                printList(s);
                 memoryReset(undo);
                 RESET = true;
                 break;
             }
             case 8: {
-                save(undo.head->data, nameSave);
+                save(s, nameSave);
                 SAVE = true;
                 break;
             }
@@ -152,19 +161,26 @@ void menuStack(int input) {
             }
             case 11: {
                 cout << "undo\n";
+                undoStack(undo);
                 copyStack(undo.head->data, copy);
                 push(redo, copy);
-                undoStack(undo);
-                printList(undo.head->data);    
+                if (isEmpty(undo)) {
+                    cout << "Can't undo\n";
+                } else {
+                    printList(undo.head->data);
+                }
                 break;
             }
             case 12: {
                 cout << "redo\n";
+                redoStack(redo);
                 copyStack(redo.head->data, copy);
                 push(undo, copy);
-                redoStack(redo);
-                printList(redo.head->data);
-
+                if (isEmpty(redo)) {
+                    cout << "Can't redo\n";
+                } else {
+                    printList(redo.head->data);
+                }
                 break;
             }
         }
