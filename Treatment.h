@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <conio.h>
 using namespace std;
 const string nameFile = "input.txt";
+
 template <class T>
 struct Node {
     T data;

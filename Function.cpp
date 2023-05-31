@@ -1,124 +1,205 @@
 #include "Function.h"
 
 int getConsoleInput() {
-    int c = _getch();
-    if (c == 0 || c == 224) {
-        switch (_getch()) {
-            case 72:  // move up
+     int c = _getch();
+    if (c == 0 || c == 224)
+    {
+        switch (_getch())
+        {
+        case 72:				//move up
+            return 2;
+        case 75:				//move left
+            return 3;
+        case 77:				//move right
+            return 4;
+        case 80:				//move down
+            return 5;
+        default:
+            return 0;
+        }
+    }
+    else
+    {
+        switch (c) {
+            case 27:  // Esc
+                return 0;
+            case 90:
+                return 11;
+            case 122:  // Z, z (undo)
+                return 11;
+            case 82:
+                return 12;
+            case 114:  // R, r
+                return 12;
+            case 49:  // 1
+                return 1;
+            case 50:  // 2
                 return 2;
-            case 75:  // move left
+            case 51:  // 3
                 return 3;
-            case 77:  // move right
+            case 52:  // 4
                 return 4;
-            case 80:  // move down
+            case 53:  // 5
                 return 5;
+            case 54:  // 6
+                return 6;
+            case 55:  // 7
+                return 7;
+            case 56:  // 8
+                return 8;
+            case 57:  // 9
+                return 9;
             default:
                 return 0;
         }
-    } else {
-        if (c == 27)  // esc
-            return 1;
-        else if (c == 87 || c == 119)  // W, w
-            return 2;
-        else if (c == 65 || c == 97)  // A, a
-            return 3;
-        else if (c == 68 || c == 100)  // D, d
-            return 4;
-        else if (c == 83 || c == 115)  // S, s
-            return 5;
-        else if (c == 13)  // Enter
-            return 6;
-        else if (c == 76 || c == 108)  // L, l (lưu game)
-            return 7;
-        else if (c == 84 || c == 116)  // T, t (load game)
-            return 10;
-        else if (c == 89 || c == 121)  // Y, y
-            return 11;
-        else if (c == 77 || c == 109)  // M, m (turn off sound)
-            return 8;
-        else if (c == 78 || c == 110)  // N, n (turn on sound)
-            return 9;
-        else if (c == 90 || c == 122)  // Z, z (undo)
-            return 12;
-        else if (c == 69 || c == 101)  // E, e (setting)
-            return 13;
-        else if (c == 72 || c == 104)  // H, h (gợi ý)
-            return 14;
-        else
-            return 0;
     }
 }
 
 template <class T>
-Stack<T> undoStack(Stack<Stack<T>>& s, bool flag) {
-    if (s.head != NULL && s.head->next != NULL) {
-        Stack<T> copy;
-        copyStack(s.head->data, copy);
-        pop(s.head->data);
-        return copy;
+void memoryReset(Stack<Stack<T>>& stack) {
+    Node<Stack<T>>* cur = stack.head;
+    while (cur != NULL) {
+        save(cur->data, nameMemoryReset);  // Make sure to define the `save` function or provide its implementation
+        cur = cur->next;
     }
-    return Stack<T>();
+}
+
+template <class T>
+void undoStack(Stack<Stack<T>>& s) {
+    if (isEmpty(s)) cout << "Can't undo\n";
+    if (s.head != NULL && s.head->next != NULL) {
+        Node<Stack<T>> *cur = s.head;
+        pop(cur->data);
+        s.head = cur->next;
+    }
+}
+template <class T>
+void redoStack(Stack<Stack<T>>& s) {
+    if (isEmpty(s)) cout << "Can't redo\n";
+    if (s.head != NULL && s.head->next != NULL) {
+        Node<Stack<T>> *cur = s.head;
+        pop(cur->data);
+        s.head = cur->next;
+    }
 }
 
 void menuStack(int input) {
+    bool SAVE = false;
+    bool RESET = false;
     Stack<int> s;
     createListFromFile(s);
-    Stack<Stack<int>> stack;
-    push(stack, s);
+    Stack<Stack<int>> undo;
+    Stack<Stack<int>> redo;
+    push(undo, s);
+    printList(s);
 
-    for (int i = 0; i < 5; i++) {
-        cout << i << ": " << nameSelection[i] << endl;
+    cout << "Number current selection\n";
+    for (int i = 1; i <= 9; i++) {
+        if (i == 5) cout << "z: " << nameSelection[i - 1] << endl;
+        else if (i == 6) cout << "r: " << nameSelection[i - 1] << endl;
+        else cout << i << ": " << nameSelection[i - 1] << endl;
     }
-    cout << "W A D S\n";
-    cout << "Z: undo\n";
-    bool flag = false;
     Stack<int> copy;
-
-    while (input != 1) {
+    while (input != 0) {
         input = getConsoleInput();
         switch (input) {
-            case 2: {
-                flag = false;
+            case 1: {
                 push(s);
                 printList(s);
-                push(stack, s);
+                push(undo, s);
+                break;
+            }
+            case 2: {
+                copyStack(s, copy);
+                insertPos(copy);
+                push(undo, copy);
+                printList(copy);
+                copyStack(copy, s);
                 break;
             }
             case 3: {
-                flag = false;
-                pop(s);
-                printList(s);
-                push(stack, s);
+                copyStack(s, copy);
+                deletePos(copy);
+                push(undo, copy);
+                printList(copy);
+                copyStack(copy, s);
                 break;
             }
             case 4: {
-                flag = false;
-                copyStack(stack.head->data, s);
-                peek(s);
+                copyStack(undo.head->data, copy);
+                bubbleSort(copy);
+                push(undo, copy);
+                printList(undo.head->data);
                 break;
             }
-            case 5: {
-                flag = true;
-                Stack<int> copy;
-                copyStack(s, copy);
-                deletePos(copy);
-                push(stack, copy);
-                printList(copy);
+            case 7: {
+                clearList(s);
+                clearConsole();
+                menuStack(-1);
+                memoryReset(undo);
+                RESET = true;
                 break;
             }
-            case 12: {
-                copy = undoStack(stack, flag);
-                printList(stack.head->data);
+            case 8: {
+                save(undo.head->data, nameSave);
+                SAVE = true;
+                break;
+            }
+            case 9: {
+                exit(0);
+                clearConsole();
                 break;
             }
             case 11: {
-                push(stack, copy);
-                printList(stack.head->data);
+                cout << "undo\n";
+                copyStack(undo.head->data, copy);
+                push(redo, copy);
+                undoStack(undo);
+                printList(undo.head->data);    
                 break;
             }
-            case 13:{
-                printList(stack.head->data);
+            case 12: {
+                cout << "redo\n";
+                copyStack(redo.head->data, copy);
+                push(undo, copy);
+                redoStack(redo);
+                printList(redo.head->data);
+
+                break;
             }
         }
+    }
+}
+
+
+template <class T>
+void save(Stack<T> &s, string nameFile){
+    fstream file;
+    file.open(nameFile, ios::out | ios::app);
+    if(file.is_open()){
+        Node<T> *cur = s.head;
+        while(cur != NULL){
+            file << cur->data << " ";
+            cur = cur->next;
+        }
+    }
+    else cout << "Openning file to save failed\n";
+}
+void clearConsole(){
+    system("cls");
+}
+// sắp xếp từ nhỏ tới lớn
+template <class T>
+void bubbleSort(Stack<T> &s) {
+    Node<T> *cur = s.head;
+    while (cur != NULL) {
+        Node<T> *cur2 = cur->next;
+        while (cur2 != NULL) {
+            if (cur2->data < cur->data) {
+                swap(cur2->data, cur->data);
+            }
+            cur2 = cur2->next;
+        }
+        cur = cur->next;
     }
 }

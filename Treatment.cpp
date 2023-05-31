@@ -2,7 +2,7 @@
 
 template <class T>
 bool isEmpty(Stack<T> &s) {
-    return s.head == NULL;
+    return (s.head == NULL);
 }
 
 template <class T>
@@ -172,20 +172,31 @@ void insertPos(Stack<T> &s){
 template <class T>
 void copyStack(Stack<T> &source, Stack<T> &destination) {
     if (isEmpty(source)) {
-        destination.head = nullptr;
+        destination.head = NULL;
     } else {
         Node<T> *cur = source.head;
-        Node<T> *prev = nullptr;
+        Node<T> *prev = NULL;
         Node<T> *newNode = createNode(cur->data);
         destination.head = newNode;
         prev = newNode;
         cur = cur->next;
 
-        while (cur != nullptr) {
+        while (cur != NULL) {
             newNode = createNode(cur->data);
             prev->next = newNode;
             prev = newNode;
             cur = cur->next;
         }
     }
+}
+
+template <class T>
+int countNode(Stack<T> &s){
+    Node<T> *cur = s.head;
+    int count = 0;
+    while(cur != NULL){
+        count++;
+        cur = cur->next;
+    }
+    return count;
 }
