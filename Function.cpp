@@ -142,9 +142,7 @@ void menuStack(int input) {
             case 7: {
                 clearList(s);
                 clearConsole();
-                createListFromFile(s);
-                push(undo, s);
-                printList(s);
+                menuStack(-1);                
                 memoryReset(undo);
                 RESET = true;
                 break;
@@ -198,8 +196,10 @@ void save(Stack<T> &s, string nameFile){
             file << cur->data << " ";
             cur = cur->next;
         }
+        file << endl;
     }
     else cout << "Openning file to save failed\n";
+    file.close();
 }
 void clearConsole(){
     system("cls");
