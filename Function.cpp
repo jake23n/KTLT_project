@@ -68,7 +68,7 @@ template <class T>
 void undoStack(Stack<Stack<T>>& s) {
     if (isEmpty(s)) cout << "Can't undo\n";
     if (s.head != NULL && s.head->next != NULL) {
-        Node<Stack<T>> *cur = s.head;
+        Node<Stack<T>>* cur = s.head;
         pop(cur->data);
         s.head = cur->next;
     }
@@ -86,13 +86,19 @@ void redoStack(Stack<Stack<T>>& s) {
 
 
 
+
 void menuStack(int input) {
+    int flagUndo = 0;
+    int flagRedo = 0;
+    int flag = 0;
     bool SAVE = false;
     bool RESET = false;
     Stack<int> s;
     createListFromFile(s);
     Stack<Stack<int>> undo;
     Stack<Stack<int>> redo;
+    Stack<int> from;
+    copyStack(s, from);
     push(undo, s);
     printList(s);
 
@@ -149,6 +155,7 @@ void menuStack(int input) {
             }
             case 8: {
                 save(s, nameSave);
+                cout << "Numbers have been stored.\n";
                 SAVE = true;
                 break;
             }
@@ -158,25 +165,36 @@ void menuStack(int input) {
                 break;
             }
             case 11: {
-                cout << "undo\n";
                 undoStack(undo);
                 copyStack(undo.head->data, copy);
-                push(redo, copy);
-                if (isEmpty(undo)) {
+                if (compareStacks(from, undo.head->data) && flagUndo != 2) {
+                    flagUndo++;
+                }
+                if(compareStacks(from, undo.head->data) && flagUndo == 2){
                     cout << "Can't undo\n";
-                } else {
+                    input = getConsoleInput();
+                    if(input == 11) clearConsole();
+                    menuStack(input);
+                }
+                else {
+                    flagRedo++;
+                    push(redo, copy);
                     printList(undo.head->data);
                 }
                 break;
             }
             case 12: {
-                cout << "redo\n";
                 redoStack(redo);
                 copyStack(redo.head->data, copy);
-                push(undo, copy);
-                if (isEmpty(redo)) {
+                if (flag == flagRedo) {
                     cout << "Can't redo\n";
-                } else {
+                    input = getConsoleInput();
+                    if(input == 11) clearConsole();
+                    menuStack(input);
+                }
+                else {
+                    flag++;
+                    push(undo, copy);
                     printList(redo.head->data);
                 }
                 break;
@@ -218,4 +236,26 @@ void bubbleSort(Stack<T> &s) {
         }
         cur = cur->next;
     }
+}
+template <class T>
+bool compareStacks(Stack<T>& stack1, Stack<T>& stack2) {
+    // Check the sizes of the stacks
+    if (countNode(stack1) != countNode(stack2)) {
+        return false;
+    }
+
+    Node<T>* cur1 = stack1.head;
+    Node<T>* cur2 = stack2.head;
+
+    // Traverse both stacks and compare each element
+    while (cur1 != nullptr && cur2 != nullptr) {
+        if (cur1->data != cur2->data) {
+            return false;
+        }
+        cur1 = cur1->next;
+        cur2 = cur2->next;
+    }
+
+    // If both stacks are traversed completely and no mismatches found, they are equal
+    return (cur1 == nullptr && cur2 == nullptr);
 }

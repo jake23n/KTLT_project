@@ -1,5 +1,5 @@
 #pragma once
-#include "Treatment.h"
+#include "Treatment.cpp"
 
 const string nameSave = "output.txt";
 const string nameMemoryReset = "memory.txt";
@@ -18,3 +18,7 @@ template <class T>
 void save(Stack<T> &s, string nameFile);
 static void clearConsole();
 static int getConsoleInput();
+
+template <class T>
+bool compareStacks(Stack<T>& stack1, Stack<T>& stack2);
+

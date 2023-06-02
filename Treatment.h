@@ -41,3 +41,6 @@ template <class T>
 void insertPos(Stack<T> &s);
 template <class T>
 void copyStack(Stack<T> &source, Stack<T> &destination);
+
+template <class T>
+int countNode(Stack<T> &s);
